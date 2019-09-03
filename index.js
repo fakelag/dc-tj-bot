@@ -1,5 +1,6 @@
 import * as discord from 'discord.js';
 import * as schedule from 'node-schedule';
+import * as pokemon from './pokemon';
 
 const bot = new discord.Client();
 
@@ -13,7 +14,7 @@ const trackArrivals = {
 const config = {
 	arrivals: trackArrivals,
 	motd: `Updating TJ for ${Object.keys(trackArrivals).join(', ')}`,
-	targetChannel: 'general',
+	targetChannel: 'tänään-jäljellä',
 };
 
 const beginDateTable = {
@@ -65,7 +66,6 @@ const dateDiffDays = (d1, d2) => {
 	return diffDays;
 }
 
-
 const calcTJDays = (arrival, totalDays = 347) => {
 	try {
 		if (beginDateTable[arrival] === undefined)
@@ -107,6 +107,15 @@ const showTJ = () => {
 
 				if (tjObject.hasBegun) {
 					channel.send(`${arrivalName} (${totalDays}) Tänään jäljellä enää ${tjObject.tj} päivää.`);
+					if (pokemon.isValidIndex(tjObject.tj - 1)) {
+						const pokemonName = pokemon.getPokemonName(tjObject.tj - 1);
+
+						let pokemonEmbed = new discord.RichEmbed()
+							.setTitle(`(${arrivalName}) Päivän pokemon: ${pokemonName}`)
+							.setImage(pokemon.getPokemonImageUrl(tjObject.tj));
+
+						channel.send(pokemonEmbed);
+					}
 				} else {
 					channel.send(`${arrivalName} Palveluksen alkuun ${tjObject.tj} päivää.`);
 				}
